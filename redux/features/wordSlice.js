@@ -5,6 +5,7 @@ const initialState = {
   loading: "",
   data: null,
   error: "",
+  status: "idle",
 };
 
 export const getWords = createAsyncThunk(
@@ -28,15 +29,22 @@ export const wordSlice = createSlice({
     builder
       .addCase(getWords.pending, (state) => {
         state.loading = true;
+        state.data = null;
+        state.error = null;
+        state.status = "loading";
       })
       .addCase(getWords.fulfilled, (state, action) => {
         state.loading = false;
         state.data = action.payload;
+        state.error = "";
+        state.status = "work";
       })
       .addCase(getWords.rejected, (state, action) => {
         state.loading = false;
+        state.data = null;
         state.isError = "true";
-        state.error = action.payload.title;
+        state.error = action.payload;
+        state.status = "error";
       });
   },
 });

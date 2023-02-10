@@ -1,21 +1,79 @@
 import Head from "next/head";
-import { Box, Input, InputGroup, InputRightElement } from "@chakra-ui/react";
+import {
+  Alert,
+  AlertIcon,
+  Box,
+  Divider,
+  HStack,
+  Input,
+  InputGroup,
+  InputRightElement,
+  ListItem,
+  Text,
+  UnorderedList,
+  useColorModeValue,
+  VStack,
+} from "@chakra-ui/react";
 import { useDispatch, useSelector } from "react-redux";
 import { useForm } from "react-hook-form";
 import { BiSearchAlt } from "react-icons/bi";
 import { getWords } from "@/redux/features/wordSlice";
 import Navbar from "./components/Navbar";
+import Link from "next/link";
+import { useEffect, useState } from "react";
+import Image from "next/image";
+import { Inconsolata, Inter, Lora, Lobster } from "@next/font/google";
+
+const inter = Inter({
+  weight: ["400", "500", "600", "700", "800", "900"],
+  subsets: ["latin"],
+});
+
+const lora = Lora({
+  weight: ["400", "500", "600", "700"],
+  subsets: ["latin"],
+});
+
+const inconsolata = Inconsolata({
+  weight: ["400", "500", "600", "700", "800", "900"],
+  subsets: ["latin"],
+});
+
+const lobster = Lobster({
+  weight: ["400"],
+  subsets: ["latin"],
+});
 
 export default function Home() {
   const dispatch = useDispatch();
-  const { register, watch, handleSubmit } = useForm();
+  const [param, setParam] = useState("");
+  const [font, setFont] = useState(inter);
+  const textColor = useColorModeValue("gray.600", "gray.400");
+  const definitionColor = useColorModeValue("gray.700", "gray.300");
+  const word = useSelector((state) => state.word);
+  const fontStyle = useSelector((state) => state.font);
+  const { handleSubmit } = useForm();
 
-  const words = useSelector((state) => state.word);
-  console.log(words);
+  console.log(word);
+
+  const handleChange = (e) => {
+    setParam(e.target.value);
+  };
 
   const onSubmit = () => {
-    dispatch(getWords(watch("word")));
+    dispatch(getWords(param));
   };
+
+  useEffect(() => {
+    if (fontStyle.font === "inter") {
+      setFont(inter);
+    } else if (fontStyle.font === "lora") {
+      setFont(lora);
+    } else if (fontStyle.font === "inconsolata") {
+      setFont(inconsolata);
+    }
+  }, [fontStyle]);
+
   return (
     <>
       <Head>
@@ -27,10 +85,10 @@ export default function Home() {
 
       <Navbar />
 
-      <main>
+      <main className={font.className}>
         <Box p={2} maxW={["100%", "2xl"]} m="auto">
           <form onSubmit={handleSubmit(onSubmit)}>
-            <Box mx={4} my={2}>
+            <Box my={2}>
               <InputGroup>
                 <InputGroup>
                   <InputRightElement
@@ -38,15 +96,200 @@ export default function Home() {
                     children={<BiSearchAlt color="gray.300" />}
                   />
                   <Input
-                    {...register("word")}
                     type="text"
                     placeholder="Search keywords here"
-                    colorScheme="twitter"
+                    colorScheme="#5773ff"
+                    focusBorderColor="#5773ff"
+                    variant="filled"
+                    onChange={handleChange}
+                    required
                   />
                 </InputGroup>
               </InputGroup>
             </Box>
           </form>
+
+          {word.status === "idle" ? (
+            <Box
+              display="flex"
+              justifyContent="center"
+              alignItems="center"
+              height="70vh"
+            >
+              <Text>Start your journey by search in textbox</Text>
+            </Box>
+          ) : null}
+
+          {word.loading && (
+            <Box
+              padding="6"
+              display="flex"
+              alignItems="center"
+              justifyContent="center"
+              height="80vh"
+            >
+              <Image
+                src={"/loader.gif"}
+                width={200}
+                height={200}
+                alt="loading"
+              />
+            </Box>
+          )}
+
+          {word.data && (
+            <Box>
+              <Box my={5}>
+                <Box
+                  display="flex"
+                  alignItems="center"
+                  justifyContent="space-between"
+                >
+                  <VStack spacing={2} alignItems="flex-start">
+                    <Text
+                      fontSize={["4xl", "5xl"]}
+                      fontWeight="extrabold"
+                      className={font.className}
+                    >
+                      {word?.data[0]?.word}
+                    </Text>
+                    <Text
+                      color="#5773ff"
+                      fontSize={["md", "lg"]}
+                      fontWeight="bold"
+                    >
+                      {word?.data[0]?.phonetic}
+                    </Text>
+                  </VStack>
+
+                  <Box></Box>
+                </Box>
+              </Box>
+
+              <Box my={2} display="flex" alignItems="center" gap={3}>
+                <Text className={lobster.className} fontSize={["lg", "20px"]}>
+                  noun
+                </Text>
+
+                <Box width="100%">
+                  <Divider orientation="horizontal" />
+                </Box>
+              </Box>
+
+              <Box my={8}>
+                <Text fontSize={["md", "lg"]} color={textColor} my={3}>
+                  Definitions
+                </Text>
+
+                <UnorderedList mx={8} color={definitionColor} spacing={2}>
+                  {word?.data[0]?.meanings[0] &&
+                    word?.data[0]?.meanings[0]?.definitions?.map(
+                      (item, key) => (
+                        <ListItem key={key}>{item.definition}</ListItem>
+                      )
+                    )}
+                </UnorderedList>
+
+                <Box>
+                  <Box display="flex" alignItems="center" gap={5} my={5}>
+                    <Text fontSize={["md", "lg"]} color={textColor}>
+                      Synonyms
+                    </Text>
+
+                    <Box display="flex" gap={1} flexWrap="wrap">
+                      {word?.data[0]?.meanings[0] &&
+                        word?.data[0]?.meanings[0]?.synonyms?.map(
+                          (item, key) => (
+                            <Box key={key}>
+                              <Text
+                                color={"#5773ff"}
+                                fontWeight="bold"
+                                display="flex"
+                              >
+                                {item},
+                              </Text>
+                            </Box>
+                          )
+                        )}
+                    </Box>
+                  </Box>
+
+                  <Box display="flex" alignItems="center" gap={5}>
+                    <Text fontSize={["md", "lg"]} color={textColor}>
+                      Antonyms
+                    </Text>
+
+                    <Box display="flex" gap={1}>
+                      {word?.data[0]?.meanings[0] &&
+                        word?.data[0]?.meanings[0]?.antonyms?.map(
+                          (item, key) => (
+                            <Box key={key}>
+                              <Text
+                                color={"#5773ff"}
+                                fontWeight="bold"
+                                display="flex"
+                              >
+                                {item},
+                              </Text>
+                            </Box>
+                          )
+                        )}
+                    </Box>
+                  </Box>
+                </Box>
+              </Box>
+
+              <Box my={2} display="flex" alignItems="center" gap={3}>
+                <Text className={lobster.className} fontSize={["lg", "20px"]}>
+                  verb
+                </Text>
+
+                <Box width="100%">
+                  <Divider orientation="horizontal" />
+                </Box>
+              </Box>
+
+              <Box my={8}>
+                <Text fontSize={["md", "lg"]} color={textColor} my={3}>
+                  Definitions
+                </Text>
+
+                <UnorderedList mx={8} color={definitionColor} spacing={2}>
+                  {word?.data[0]?.meanings &&
+                    word?.data[0]?.meanings[1]?.definitions?.map(
+                      (item, key) => (
+                        <Box key={key}>
+                          <ListItem>{item.definition}</ListItem>
+                          <Text color={"gray.500"}>{item.example}</Text>
+                        </Box>
+                      )
+                    )}
+                </UnorderedList>
+              </Box>
+
+              <Box width="100%">
+                <Divider orientation="horizontal" />
+              </Box>
+
+              <Box p={2} maxW={["100%", "2xl"]} m="auto">
+                <HStack spacing={3}>
+                  <Text>Source</Text>
+                  <Link href={word?.data ? word?.data[0]?.sourceUrls[0] : "/"}>
+                    <Text textDecoration="underline">
+                      {word?.data ? word?.data[0]?.sourceUrls[0] : ""}
+                    </Text>
+                  </Link>
+                </HStack>
+              </Box>
+            </Box>
+          )}
+
+          {word.error && (
+            <Alert status="error">
+              <AlertIcon />
+              {word.error.title}
+            </Alert>
+          )}
         </Box>
       </main>
     </>
