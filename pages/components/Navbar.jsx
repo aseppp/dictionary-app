@@ -16,28 +16,14 @@ import {
 } from "@chakra-ui/react";
 import { useDispatch, useSelector } from "react-redux";
 import { setFontStyle } from "@/redux/features/fontSlice";
-import { Inconsolata, Inter, Lora } from "@next/font/google";
-
-const inter = Inter({
-  weight: ["400"],
-  subsets: ["latin"],
-});
-
-const lora = Lora({
-  weight: ["400"],
-  subsets: ["latin"],
-});
-
-const inconsolata = Inconsolata({
-  weight: ["400"],
-  subsets: ["latin"],
-});
+import { lora, inter, inconsolata } from "@/styles/fonts";
 
 const Navbar = () => {
   const dispatch = useDispatch();
   const [font, setFont] = useState(inter);
   const fontStyle = useSelector((state) => state.font);
   const { colorMode, toggleColorMode } = useColorMode();
+  const bgColor = useColorModeValue("white", "#1d1d1d");
   const textColor = useColorModeValue("gray.600", "gray.400");
 
   const handleChange = (value) => {
@@ -56,7 +42,7 @@ const Navbar = () => {
 
   return (
     <header className={font.className}>
-      <Box maxW={["100%", "2xl"]} m="auto" px={1}>
+      <Box maxW={["100%", "2xl"]} m="auto" px={2}>
         <Box
           py={2}
           display="flex"
@@ -80,11 +66,12 @@ const Navbar = () => {
                 >
                   Fonts Style
                 </MenuButton>
-                <MenuList>
+                <MenuList bg={bgColor}>
                   <MenuItem
                     fontSize="sm"
                     className={lora.className}
                     onClick={() => handleChange("lora")}
+                    bg={bgColor}
                   >
                     Serif
                   </MenuItem>
@@ -92,6 +79,7 @@ const Navbar = () => {
                     fontSize="sm"
                     className={inter.className}
                     onClick={() => handleChange("inter")}
+                    bg={bgColor}
                   >
                     Sans Serif
                   </MenuItem>
@@ -99,6 +87,7 @@ const Navbar = () => {
                     fontSize="sm"
                     className={inconsolata.className}
                     onClick={() => handleChange("inconsolata")}
+                    bg={bgColor}
                   >
                     Mono
                   </MenuItem>
@@ -110,7 +99,7 @@ const Navbar = () => {
               <Divider orientation="vertical" colorScheme="blackAlpha" />
             </Box>
 
-            <Box>
+            <Box display="flex" alignItems="end" gap={2}>
               <Button variant="link" size="sm" onClick={toggleColorMode}>
                 {colorMode === "light" ? (
                   <Icon w={[5, 6]} h={[5, 6]} as={BsCloudSun} color="black" />

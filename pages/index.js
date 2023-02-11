@@ -1,9 +1,17 @@
 import Head from "next/head";
+import Link from "next/link";
+import Image from "next/image";
+import Navbar from "./components/Navbar";
+import { useForm } from "react-hook-form";
+import { useEffect, useState } from "react";
+import { BiSearchAlt } from "react-icons/bi";
+import { getWords } from "@/redux/features/wordSlice";
+import { useDispatch, useSelector } from "react-redux";
+import { lora, inter, inconsolata, lobster } from "@/styles/fonts";
 import {
   Alert,
   AlertIcon,
   Box,
-  Button,
   Divider,
   HStack,
   Input,
@@ -15,35 +23,6 @@ import {
   useColorModeValue,
   VStack,
 } from "@chakra-ui/react";
-import { useDispatch, useSelector } from "react-redux";
-import { useForm } from "react-hook-form";
-import { BiSearchAlt } from "react-icons/bi";
-import { getWords } from "@/redux/features/wordSlice";
-import Navbar from "./components/Navbar";
-import Link from "next/link";
-import { useEffect, useState } from "react";
-import Image from "next/image";
-import { Inconsolata, Inter, Lora, Lobster } from "@next/font/google";
-
-const inter = Inter({
-  weight: ["400", "500", "600", "700", "800", "900"],
-  subsets: ["latin"],
-});
-
-const lora = Lora({
-  weight: ["400", "500", "600", "700"],
-  subsets: ["latin"],
-});
-
-const inconsolata = Inconsolata({
-  weight: ["400", "500", "600", "700", "800", "900"],
-  subsets: ["latin"],
-});
-
-const lobster = Lobster({
-  weight: ["400"],
-  subsets: ["latin"],
-});
 
 export default function Home() {
   const dispatch = useDispatch();
@@ -53,6 +32,7 @@ export default function Home() {
   const textColor = useColorModeValue("gray.600", "gray.400");
   const definitionColor = useColorModeValue("gray.700", "gray.300");
   const word = useSelector((state) => state.word);
+  const wordData = word.data?.[0];
   const fontStyle = useSelector((state) => state.font);
   const { handleSubmit } = useForm();
   const useAbleAudio = audio.slice(0, 1);
@@ -94,6 +74,8 @@ export default function Home() {
       setFont(inconsolata);
     }
   }, [fontStyle]);
+
+  console.log(wordData);
 
   return (
     <>
