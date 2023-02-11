@@ -3,6 +3,7 @@ import {
   Alert,
   AlertIcon,
   Box,
+  Button,
   Divider,
   HStack,
   Input,
@@ -48,13 +49,13 @@ export default function Home() {
   const dispatch = useDispatch();
   const [param, setParam] = useState("");
   const [font, setFont] = useState(inter);
+  const [audio, setAudio] = useState([]);
   const textColor = useColorModeValue("gray.600", "gray.400");
   const definitionColor = useColorModeValue("gray.700", "gray.300");
   const word = useSelector((state) => state.word);
   const fontStyle = useSelector((state) => state.font);
   const { handleSubmit } = useForm();
-
-  console.log(word);
+  const useAbleAudio = audio.slice(0, 1);
 
   const handleChange = (e) => {
     setParam(e.target.value);
@@ -63,6 +64,26 @@ export default function Home() {
   const onSubmit = () => {
     dispatch(getWords(param));
   };
+
+  const filterAudio = () => {
+    const result = word?.data[0]?.phonetics;
+    for (let i = 0; i < result.length; i++) {
+      const filtered = result.filter((e) => {
+        return e.audio !== "";
+      });
+      setAudio(filtered);
+    }
+  };
+
+  const audioPlay = () => {
+    new Audio(useAbleAudio[0]?.audio).play();
+  };
+
+  useEffect(() => {
+    if (word.data) {
+      filterAudio();
+    }
+  }, [word.data]);
 
   useEffect(() => {
     if (fontStyle.font === "inter") {
@@ -162,7 +183,16 @@ export default function Home() {
                     </Text>
                   </VStack>
 
-                  <Box></Box>
+                  <Box>
+                    <Box cursor="pointer" onClick={() => audioPlay()}>
+                      <Image
+                        src="/microphone.png"
+                        width={80}
+                        height={80}
+                        alt="mic"
+                      />
+                    </Box>
+                  </Box>
                 </Box>
               </Box>
 
